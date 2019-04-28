@@ -1,32 +1,66 @@
 import React from "react"
-import { StaticQuery, graphql } from "gatsby"
 import Img from "gatsby-image"
 
-/*
- * This component is built using `gatsby-image` to automatically serve optimized
- * images with lazy loading and reduced file sizes. The image is loaded using a
- * `StaticQuery`, which allows us to load the image from directly within this
- * component, rather than having to pass the image data down from pages.
- *
- * For more information, see the docs:
- * - `gatsby-image`: https://gatsby.dev/gatsby-image
- * - `StaticQuery`: https://gatsby.dev/staticquery
- */
+import { Card, CardContent, Chip, Typography } from '@material-ui/core'
+import { withStyles } from '@material-ui/core/styles'
 
-const Image = () => (
-  <StaticQuery
-    query={graphql`
-      query {
-        placeholderImage: file(relativePath: { eq: "gatsby-astronaut.png" }) {
-          childImageSharp {
-            fluid(maxWidth: 300) {
-              ...GatsbyImageSharpFluid
-            }
-          }
-        }
-      }
-    `}
-    render={data => <Img fluid={data.placeholderImage.childImageSharp.fluid} />}
-  />
-)
-export default Image
+const Image = ({ node, classes }) => {
+  node.meta = {
+    country: 'France',
+    date: 'July 2016',
+    place: 'Rennes',
+    title: 'Lizard title'
+  }
+
+  const tags = [node.meta.place, node.meta.country]
+
+  return (
+    <Card className={classes.card}>
+      <a href={node.original.src} key={node.id}>
+        <Img fluid={node.fluid} />
+      </a>
+      <CardContent className={classes.content}>
+        <Typography gutterBottom variant="h5" component="h2">
+          {node.meta.title}
+        </Typography>
+        <div className={classes.details}>
+          <div className={classes.date}>
+            <Typography component="p">
+              {node.meta.date}
+            </Typography>
+          </div>
+          <div className={classes.chips}>
+            {tags.map(tag =>
+              <Chip label={tag} className={classes.chip} />)}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+const styles = {
+  card: {
+    margin: '3rem 0'
+  },
+  content: {
+    textAlign: 'left',
+  },
+  details: {
+    marginTop: '-0.5rem',
+    display: 'flex',
+    alignItems: 'flex-end'
+  },
+  date: {
+    fontStyle: 'italic'
+  },
+  chips: {
+    textAlign: 'right',
+    flexGrow: 1,
+  },
+  chip: {
+    marginLeft: '0.5rem'
+  }
+}
+
+export default withStyles(styles)(Image);
