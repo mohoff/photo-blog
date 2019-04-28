@@ -5,6 +5,17 @@ module.exports = {
   },
   plugins: [
     {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: `Photoblog`,
+        short_name: `Photoblog`,
+        start_url: `/`,
+        background_color: `#fff`,
+        display: `standalone`,
+        icon: `src/assets/favicon_144x144.png`
+      },
+    },
+    {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
@@ -19,6 +30,6 @@ module.exports = {
         stripMetadata: false,
         defaultQuality: 80,
       },
-    },
+    }
   ],
 }
