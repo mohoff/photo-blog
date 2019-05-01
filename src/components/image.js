@@ -4,34 +4,28 @@ import Img from "gatsby-image"
 import { Card, CardContent, Chip, Typography } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
-const Image = ({ node, classes }) => {
-  node.meta = {
-    country: 'France',
-    date: 'July 2016',
-    place: 'Rennes',
-    title: 'Lizard title'
-  }
-
-  const tags = [node.meta.place, node.meta.country]
+const Image = ({ data, classes }) => {
+  const image = data.image.childImageSharp
+  const tags = [data.place, data.country]
 
   return (
     <Card className={classes.card}>
-      <a href={node.original.src} key={node.id}>
-        <Img fluid={node.fluid} />
+      <a href={image.fluid.src}>
+        <Img fluid={image.fluid} />
       </a>
       <CardContent className={classes.content}>
         <Typography gutterBottom variant="h5" component="h2">
-          {node.meta.title}
+          {data.title}
         </Typography>
         <div className={classes.details}>
           <div className={classes.date}>
             <Typography component="p">
-              {node.meta.date}
+              {data.takenAt}
             </Typography>
           </div>
           <div className={classes.chips}>
             {tags.map(tag =>
-              <Chip label={tag} className={classes.chip} />)}
+              <Chip label={tag} className={classes.chip} key={tag} />)}
           </div>
         </div>
       </CardContent>

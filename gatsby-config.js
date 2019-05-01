@@ -22,6 +22,7 @@ module.exports = {
         path: `${__dirname}/data`,
       },
     },
+    `gatsby-transformer-remark`,
     `gatsby-transformer-sharp`,
     {
       resolve: `gatsby-plugin-sharp`,

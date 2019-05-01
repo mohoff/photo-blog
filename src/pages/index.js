@@ -12,26 +12,60 @@ export default () => (
   </Layout>
 )
 
-const Blog = () => useStaticQuery(allImages).allImageSharp.edges.map(edge =>
-  <Image node={edge.node} />
-)
+const Blog = () => useStaticQuery(allImages).posts.edges.map(edge => <Image data={edge.node.frontmatter} key={edge.node.frontmatter.image.childImageSharp.id} />)
 
 const allImages = graphql`
-  query {
-    allImageSharp {
+  query ImagesQuery {
+    posts: allMarkdownRemark(
+      filter: {
+        frontmatter: { publish: { eq: true } }
+      }
+      sort: { fields: [frontmatter___takenAt], order: DESC }
+    ) {
       edges {
         node {
-          id
-          fluid {
-            aspectRatio
-            base64
-            src
-          }
-          original {
-            src
+          frontmatter {
+            takenAt(formatString: "MMM YYYY")
+            country
+            place
+            title
+            image {
+              childImageSharp {
+                id
+                fluid {
+                  ...GatsbyImageSharpFluid_withWebp
+                }
+              }
+            }
           }
         }
       }
     }
   }
 `
+
+
+
+
+// #     }
+// # allImageSharp {
+//   #   edges {
+//     #     node {
+//       #       id
+//       #       fluid {
+//         #         aspectRatio
+//         #         base64
+//         #         src
+//         #
+//       }
+//       #       original {
+//         #         src
+//         #
+//       }
+//       #
+//     }
+//     #
+//   }
+//   #
+// }
+// #   }
