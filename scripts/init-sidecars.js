@@ -2,14 +2,16 @@ const fs = require('fs')
 const path = require('path')
 const R = require('ramda')
 
+const { extractExifCreateDate } = require('../src/utils/exif')
+
 const MARKDOWN_EXT = '.md'
 const PATH = 'data'
 const SIDECAR_TEMPLATE = `---
 title: 'title'
-image: 'placeholder.jpg'
-takenAt: '2018-10-05T14:48:00.000Z'
-country: 'someCountry'
-place: 'somePlace'
+image: '<image>'
+takenAt: '<date>'
+country: '<country>'
+place: '<place>'
 publish: true
 ---
 `
@@ -20,8 +22,14 @@ const getSidecarPath = imageFile => {
   return `${PATH}/${sidecarFile}${MARKDOWN_EXT}`
 }
 
-const getSidecarContent = imageFile => {
-  return SIDECAR_TEMPLATE.replace(/placeholder.jpg/, `./${imageFile}`)
+const getSidecarContent = async imageFile => {
+  const imagePath = `${PATH}/${imageFile}`
+  const date = await extractExifCreateDate(imagePath)
+
+  return R.compose(
+    R.replace(`<image>`, `./${imageFile}`),
+    R.replace(`<date>`, R.defaultTo(`2018-10-05T14:48:00.000Z`, date))
+  )(SIDECAR_TEMPLATE)
 }
 
 const initSidecar = async () => {
@@ -32,9 +40,9 @@ const initSidecar = async () => {
   const imageFiles = R.difference(fileList, sidecarFiles)
 
   await Promise.all(
-    imageFiles.map(imageFile => fs.promises.writeFile(
+    imageFiles.map(async imageFile => fs.promises.writeFile(
       getSidecarPath(imageFile),
-      getSidecarContent(imageFile),
+      await getSidecarContent(imageFile),
       { flag: 'wx' }
     ).catch(error => {
       numSidecarsExist++

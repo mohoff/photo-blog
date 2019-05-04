@@ -1,8 +1,9 @@
-import React from "react"
-import Img from "gatsby-image"
+import React from 'react'
+import Img from 'gatsby-image'
 
 import { Card, CardContent, Chip, Typography } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
+import filterValidTags from '../utils/tags'
 
 const Image = ({ data, classes }) => {
   const image = data.image.childImageSharp
@@ -19,13 +20,15 @@ const Image = ({ data, classes }) => {
         </Typography>
         <div className={classes.details}>
           <div className={classes.date}>
-            <Typography component="p">
-              {data.takenAt}
-            </Typography>
+            <Typography component="p">{data.takenAt}</Typography>
           </div>
           <div className={classes.chips}>
-            {tags.map(tag =>
-              <Chip label={tag} className={classes.chip} key={tag} />)}
+            {tags
+              .filter(filterValidTags)
+              .map(tag => (
+                <Chip label={tag} className={classes.chip} key={tag} />
+              ))
+            }
           </div>
         </div>
       </CardContent>
@@ -35,7 +38,7 @@ const Image = ({ data, classes }) => {
 
 const styles = {
   card: {
-    margin: '3rem 0'
+    margin: '3rem 0',
   },
   content: {
     textAlign: 'left',
@@ -43,18 +46,18 @@ const styles = {
   details: {
     marginTop: '-0.5rem',
     display: 'flex',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   date: {
-    fontStyle: 'italic'
+    fontStyle: 'italic',
   },
   chips: {
     textAlign: 'right',
     flexGrow: 1,
   },
   chip: {
-    marginLeft: '0.5rem'
-  }
+    marginLeft: '0.5rem',
+  },
 }
 
-export default withStyles(styles)(Image);
+export default withStyles(styles)(Image)

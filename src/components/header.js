@@ -1,21 +1,23 @@
-import React from "react"
+import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 
-const Header = ({ title, classes }) => (
+const Header = ({ classes }) => (
   <header className={classes.header}>
     <div>
       <h1 className={classes.headline}>
-        RND<br />
-        ACC<br />
+        RND
+        <br />
+        ACC
+        <br />
         MEM
       </h1>
     </div>
-  </header >
+  </header>
 )
 
 const styles = {
   header: {
-    margin: '5rem auto'
+    margin: '5rem auto',
   },
   headline: {
     color: '#444',
@@ -23,7 +25,7 @@ const styles = {
     textDecoration: 'none',
     fontStyle: 'none',
     margin: 0,
-  }
+  },
 }
 
 export default withStyles(styles)(Header)
