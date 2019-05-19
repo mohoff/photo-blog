@@ -1,16 +1,11 @@
 stages:
 - setup
 - build
+- dockerize
 - test
 - deploy
 
-# global cache definition
-cache:
-  key: $CI_COMMIT_REF_SLUG
-  paths:
-    - node_modules/
-  policy: pull # only pull cache, do not push
-  #untracked: true # true: send all Git untracked files and files under `paths`
+# global variable definition
 variables:
   # https://docs.gitlab.com/ee/ci/yaml/README.html#git-strategy
   # Default: use project settings, Choices: pull (slow), fetch (fast), none
@@ -30,6 +25,7 @@ setup_and_install:
     paths:
       - node_modules/
       - data/
+      - Dockerfile
     policy: push # push to cache without pulling first --> initializes cache
   script: yarn install # --frozen-lockfile
 
@@ -59,7 +55,7 @@ build:
 
 
 dockerize:
-  stage: build
+  stage: dockerize
   image: docker:stable
   variables:
     # Details under https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-executor
@@ -73,7 +69,15 @@ dockerize:
     - docker
   # Disable artifact passing (all artifacts from all previous stages are passed by default). Says this job doesn't depend on previous artifacts
   # However, we still pull from the cache with the global cache job
-  dependencies: [build] 
+  dependencies:
+    - build
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+      - Dockerfile
+    policy: pull # only pull cache, do not push
+    #untracked: true # true: send all Git untracked files and files under `paths`
   before_script:
     - docker info
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
