@@ -119,7 +119,7 @@ dockerize:
     - docker info
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $IMAGE_TAG_LATEST || true
+    - docker pull $IMAGE_TAG_LATEST || true # on error, we still go to build step
     - docker build --cache-from $IMAGE_TAG_LATEST --tag $IMAGE_TAG --tag $IMAGE_TAG_LATEST .
     - docker push $IMAGE_TAG
     - docker push $IMAGE_TAG_LATEST

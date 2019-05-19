@@ -23,12 +23,9 @@ const Image = ({ data, classes }) => {
             <Typography component="p">{data.takenAt}</Typography>
           </div>
           <div className={classes.chips}>
-            {tags
-              .filter(filterValidTags)
-              .map(tag => (
-                <Chip label={tag} className={classes.chip} key={tag} />
-              ))
-            }
+            {tags.filter(filterValidTags).map(tag => (
+              <Chip label={tag} className={classes.chip} key={tag} />
+            ))}
           </div>
         </div>
       </CardContent>
