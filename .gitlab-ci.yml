@@ -1,8 +1,8 @@
 stages:
 - setup
+- test
 - build
 - dockerize
-- test
 - deploy
 
 # global variable definition
@@ -11,7 +11,7 @@ variables:
   # Default: use project settings, Choices: pull (slow), fetch (fast), none
   GIT_STRATEGY: fetch
 
-setup_and_install:
+install:
   stage: setup
   image: node:10
   except:
@@ -28,6 +28,25 @@ setup_and_install:
       - Dockerfile
     policy: push # push to cache without pulling first --> initializes cache
   script: yarn install # --frozen-lockfile
+
+test:js:
+  stage: test
+  image: node:10
+  except: 
+    refs:
+      - schedules
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  dependencies:
+    - install
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+    policy: pull
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/ # Extract jest code coverage from the job output (https://gitlab.com/gitlab-org/gitlab-ce/issues/29642#note_31177426)
+  script: yarn test
 
 build:
   stage: build
@@ -86,16 +105,6 @@ dockerize:
     - docker build --cache-from $IMAGE_TAG_LATEST --tag $IMAGE_TAG --tag $IMAGE_TAG_LATEST .
     - docker push $IMAGE_TAG
     - docker push $IMAGE_TAG_LATEST
-
-test:js:
-  except: 
-    refs:
-      - schedules
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
-  script: yarn test
-  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/ # Extract jest code coverage from the job output (https://gitlab.com/gitlab-org/gitlab-ce/issues/29642#note_31177426)
 
 deploy:
   stage: deploy

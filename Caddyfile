@@ -1,5 +1,0 @@
-https://blog.mohoff.de {
-  root /srv
-  gzip
-  proxy / localhost:8000
-}
