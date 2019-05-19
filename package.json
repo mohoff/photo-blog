@@ -18,10 +18,13 @@
     "react-dom": "^16.8.6"
   },
   "devDependencies": {
+    "babel-jest": "^24.8.0",
+    "babel-preset-gatsby": "^0.1.11",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.13.0",
+    "jest": "^24.8.0",
     "prettier": "^1.17.0"
   },
   "license": "MIT",
@@ -31,7 +34,7 @@
     "lint": "eslint --fix src",
     "start": "npm run develop",
     "serve": "gatsby serve",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
+    "test": "NODE_ENV=test jest --color --coverage",
     "init": "node scripts/init-sidecars.js"
   }
 }

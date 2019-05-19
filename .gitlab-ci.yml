@@ -1,5 +1,110 @@
-show_env_vars:
+stages:
+- setup
+- build
+- test
+- deploy
+
+# global cache definition
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - node_modules/
+  policy: pull # only pull cache, do not push
+  #untracked: true # true: send all Git untracked files and files under `paths`
+variables:
+  # https://docs.gitlab.com/ee/ci/yaml/README.html#git-strategy
+  # Default: use project settings, Choices: pull (slow), fetch (fast), none
+  GIT_STRATEGY: fetch
+
+setup_and_install:
+  stage: setup
+  image: node:10
+  except:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  # overwrite global cache defintion once with push policy
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+      - data/
+    policy: push # push to cache without pulling first --> initializes cache
+  script: yarn install # --frozen-lockfile
+
+build:
   stage: build
+  image: node:10
+  except: 
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^chore\(release\)/
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+      - data/
+    policy: pull
+  variables:
+    ARTIFACT_NAME: artifact_$CI_COMMIT_REF_SLUG
+  artifacts:
+    name: $ARTIFACT_NAME
+    expire_in: 30 days
+    when: on_success # Upload artifacts only when job succeeds (default). Alternatives: on_failure, always
+    paths:
+      - public/
+  script: yarn build
+
+
+dockerize:
+  stage: build
+  image: docker:stable
+  variables:
+    # Details under https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-executor
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG # $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
+  services:
+    - docker:dind
+  tags:
+    - docker
+  # Disable artifact passing (all artifacts from all previous stages are passed by default). Says this job doesn't depend on previous artifacts
+  # However, we still pull from the cache with the global cache job
+  dependencies: [build] 
+  before_script:
+    - docker info
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $IMAGE_TAG_LATEST || true
+    - docker build --cache-from $IMAGE_TAG_LATEST --tag $IMAGE_TAG --tag $IMAGE_TAG_LATEST .
+    - docker push $IMAGE_TAG
+    - docker push $IMAGE_TAG_LATEST
+
+test:js:
+  except: 
+    refs:
+      - schedules
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  script: yarn test
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/ # Extract jest code coverage from the job output (https://gitlab.com/gitlab-org/gitlab-ce/issues/29642#note_31177426)
+
+deploy:
+  stage: deploy
+  variables:
+    # Re-uses the project workspace, but skips all Git operations. It is mostly useful for jobs that operate exclusively on artifacts or caches.
+    GIT_STRATEGY: none 
+  script: echo "...reached deploy"
+  environment:
+    name: staging
+    url: https://staging.blog.mohoff.de # Exposes a button that when clicked take you to the defined URL
+
+show_env_vars:
+  stage: setup
   variables:
     JOB_VARIABLE: 'this is an env var defined for this job'
     MY_VARIABLE: 'test overwrite environment variable' # does NOT overwrite
