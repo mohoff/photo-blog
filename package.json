@@ -31,7 +31,8 @@
   "scripts": {
     "build": "gatsby build",
     "develop": "gatsby develop",
-    "lint": "eslint --fix src",
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
     "start": "npm run develop",
     "serve": "gatsby serve",
     "test": "NODE_ENV=test jest --color --coverage",

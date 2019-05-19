@@ -48,6 +48,24 @@ test:js:
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/ # Extract jest code coverage from the job output (https://gitlab.com/gitlab-org/gitlab-ce/issues/29642#note_31177426)
   script: yarn test
 
+lint:
+  stage: test
+  image: node:10
+  except: 
+    refs:
+      - schedules
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[ci-release\]/
+  dependencies:
+    - install
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+    policy: pull
+  script: yarn lint
+
 build:
   stage: build
   image: node:10
