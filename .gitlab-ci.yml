@@ -98,6 +98,7 @@ dockerize:
     # Details under https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-executor
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_DRIVER: overlay2
+    CI_REGISTRY_IMAGE: index.docker.io/mohoff/$CI_PROJECT_NAME # default: registry.gitlab.com/mohoff/photo-blog
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG # $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
   services:
@@ -117,6 +118,9 @@ dockerize:
     #untracked: true # true: send all Git untracked files and files under `paths`
   before_script:
     - docker info
+    - echo $CI_REGISTRY_IMAGE
+    - echo $IMAGE_TAG
+    - echo $IMAGE_TAG_LATEST
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker pull $IMAGE_TAG_LATEST || true # on error, we still go to build step
