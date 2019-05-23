@@ -98,7 +98,7 @@ dockerize:
     # Details under https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-executor
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_DRIVER: overlay2
-    CI_REGISTRY_IMAGE: index.docker.io/mohoff/$CI_PROJECT_NAME # default: registry.gitlab.com/mohoff/photo-blog
+    DOCKER_REGISTRY_IMAGE: index.docker.io/$DOCKER_REGISTRY_USER/$CI_PROJECT_NAME
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG # $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     IMAGE_TAG_LATEST: $CI_REGISTRY_IMAGE:latest
   services:
@@ -119,14 +119,19 @@ dockerize:
   before_script:
     - docker info
     - echo $CI_REGISTRY_IMAGE
-    - echo $IMAGE_TAG
-    - echo $IMAGE_TAG_LATEST
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo $DOCKER_REGISTRY_IMAGE
   script:
-    - docker pull $IMAGE_TAG_LATEST || true # on error, we still go to build step
-    - docker build --cache-from $IMAGE_TAG_LATEST --tag $IMAGE_TAG --tag $IMAGE_TAG_LATEST .
-    - docker push $IMAGE_TAG
-    - docker push $IMAGE_TAG_LATEST
+    # Push to Gitlab registry
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:latest || true # on error, we still go to build step
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG --tag $CI_REGISTRY_IMAGE:latest --tag $DOCKER_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker logout
+    # Push to Docker Hub
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+    - docker push $DOCKER_REGISTRY_IMAGE:latest
+    - docker logout
 
 deploy:
   stage: deploy
