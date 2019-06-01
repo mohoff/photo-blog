@@ -34,7 +34,7 @@
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
     "start": "gatsby develop",
-    "start:prod": "gatsby build && gatsby serve",
+    "start:prod": "gatsby serve",
     "test": "NODE_ENV=test jest --color --coverage",
     "init": "node scripts/init-sidecars.js"
   }
