@@ -2,7 +2,8 @@ FROM node:10
 
 RUN yarn global add gatsby-cli
 
-WORKDIR /srv
-COPY public/ /srv
+RUN yarn install
 
-CMD ["gatsby", "serve"]
+EXPOSE 8000
+
+CMD ["gatsby", "develop"]
