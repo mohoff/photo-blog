@@ -1,0 +1,17 @@
+FROM node:10 AS builder
+
+RUN yarn global add gatsby-cli
+
+WORKDIR /app
+
+# gatsby build && gatsby server is currently broken
+COPY . .
+RUN rm ./yarn.lock
+RUN rm -rf ./node_modules
+RUN rm -rf ./.cache
+RUN rm -rf ./public
+RUN yarn install
+
+EXPOSE 8000
+
+CMD ["gatsby", "develop", "-H", "0.0.0.0"]

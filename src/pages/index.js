@@ -1,26 +1,26 @@
 import React from 'react'
-import { useStaticQuery, graphql } from 'gatsby'
+import { graphql } from 'gatsby'
 
 import Layout from '../components/layout'
 import Image from '../components/image'
 
-const App = () => (
+const App = ({ data }) => (
   <Layout>
     <div>
-      <Blog />
+      <Blog data={data} />
     </div>
   </Layout>
 )
 
-const Blog = () =>
-  useStaticQuery(allImages).posts.edges.map(edge => (
+const Blog = ({ data }) =>
+  data.posts.edges.map(edge => (
     <Image
       data={edge.node.frontmatter}
       key={edge.node.frontmatter.image.childImageSharp.id}
     />
   ))
 
-const allImages = graphql`
+export const allImages = graphql`
   query ImagesQuery {
     posts: allMarkdownRemark(
       filter: { frontmatter: { publish: { eq: true } } }
