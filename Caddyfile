@@ -1,3 +1,5 @@
-localhost:8000 {
+:8000 {
   root /srv
+  gzip
+  tls off
 }
