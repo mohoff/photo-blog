@@ -5,11 +5,7 @@ const Header = ({ classes }) => (
   <header className={classes.header}>
     <div>
       <h1 className={classes.headline}>
-        RND
-        <br />
-        ACC
-        <br />
-        MEM
+        Photo Blog
       </h1>
     </div>
   </header>
@@ -21,7 +17,6 @@ const styles = {
   },
   headline: {
     color: '#444',
-    fontFamily: 'Major Mono Display',
     textDecoration: 'none',
     fontStyle: 'none',
     margin: 0,

@@ -1,5 +1,5 @@
 # --- BUILDER STAGE ---
-FROM node:10 AS builder
+FROM node:12 AS builder
 
 RUN yarn global add gatsby-cli
 
@@ -11,13 +11,17 @@ COPY . .
 RUN gatsby build
 
 # --- APP STAGE ---
-FROM builder
+FROM alpine:3.9
 
-RUN yarn global add gatsby-cli
+RUN apk update && apk upgrade \
+  && apk add --no-cache curl bash
+
+RUN curl --silent --show-error --fail --location https://getcaddy.com | bash -s personal
 
 WORKDIR /srv
 
 COPY --from=builder /app/public .
+COPY Caddyfile /etc/Caddyfile
 
 EXPOSE 8000
-CMD ["gatsby", "serve"]
+CMD ["caddy", "--conf", "/etc/Caddyfile", "--log", "stdout"]
