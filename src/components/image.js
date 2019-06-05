@@ -35,7 +35,7 @@ const Image = ({ data, classes }) => {
 
 const styles = {
   card: {
-    margin: '3rem 0',
+    margin: '5rem 0',
   },
   content: {
     textAlign: 'left',

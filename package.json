@@ -32,11 +32,10 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "gatsby build",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
     "start": "gatsby develop",
-    "start:prod": "gatsby serve",
+    "start:prod": "gatsby clean && gatsby build && gatsby serve",
     "test": "NODE_ENV=test jest --color --coverage",
     "init": "node scripts/init-sidecars.js"
   }
