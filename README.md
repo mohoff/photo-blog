@@ -1,6 +1,8 @@
 # `photo-blog`
 
-Material-UI based image blog powered by Gatsby.
+Material-UI based image blog powered by Gatsby. _Live on [blog.mohoff.de](https://blog.mohoff.de)_
+
+![Preview](./assets/preview.png "Preview")
 
 ## Features
 - Gatsby generates various image representations of different resolutions and formats at build time. Per default, jpgs are converted to more space-efficient webp files and base64 image representations are generated. Both techniques helps fast and progressive loading of images with blur-effect.
@@ -30,7 +32,15 @@ In production mode:
 yarn start:prod
 ```
 
+### Docker
 
+The `Dockerfile` can be used to dockerize this app. Some useful commands:
+
+```
+docker build --tag index.docker.io/mohoff/photo-blog:latest .
+docker push mohoff/photo-blog:latest
+docker run -p 8000:8000 mohoff/photo-blog:latest
+```
 
 ## Testing and linting
 
